@@ -279,6 +279,78 @@ export function StoreProvider({ children }) {
             } catch (error) {
                 return { success: false, message: 'Error de conexión' };
             }
+        },
+        
+        // Orders actions
+        getOrders: async () => {
+            if (!store.token) return { success: false };
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/orders`, {
+                    headers: {
+                        'Authorization': `Bearer ${store.token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const orders = await response.json();
+                    dispatch({ type: 'set_orders', payload: orders });
+                    return { success: true, data: orders };
+                }
+                return { success: false };
+            } catch (error) {
+                return { success: false, message: 'Error de conexión' };
+            }
+        },
+        
+        getOrder: async (orderId) => {
+            if (!store.token) return { success: false };
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/orders/${orderId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${store.token}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const order = await response.json();
+                    return { success: true, data: order };
+                } else {
+                    return { success: false };
+                }
+            } catch (error) {
+                return { success: false, message: 'Error de conexión' };
+            }
+        },
+        
+        checkout: async (checkoutData) => {
+            if (!store.token) return { success: false, message: 'Debes iniciar sesión' };
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/checkout`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${store.token}`
+                    },
+                    body: JSON.stringify(checkoutData)
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    // Limpiar carrito después del checkout exitoso
+                    dispatch({ type: 'set_cart_items', payload: [] });
+                    // Recargar órdenes
+                    actions.getOrders();
+                    return { success: true, order: data.order, payment: data.payment };
+                } else {
+                    return { success: false, message: data.error };
+                }
+            } catch (error) {
+                return { success: false, message: 'Error de conexión' };
+            }
         }
     };
 

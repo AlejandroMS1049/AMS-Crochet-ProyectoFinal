@@ -4,6 +4,10 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 from flask import Flask, request, jsonify, url_for, Blueprint
 from api.models import db, User, Product, Category, CartItem, Order, OrderItem
 from api.utils import generate_sitemap, APIException
+from api.validators import (
+    validate_user_data, validate_card_number, validate_expiry_date, 
+    validate_cvv, sanitize_input, rate_limit_by_ip
+)
 from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import check_password_hash
@@ -303,6 +307,159 @@ def remove_from_cart(item_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# Orders endpoints
+@api.route('/orders', methods=['GET'])
+@jwt_required()
+def get_orders():
+    try:
+        user_id = get_jwt_identity()
+        orders = Order.query.filter_by(user_id=user_id).order_by(Order.created_at.desc()).all()
+        
+        return jsonify([order.serialize() for order in orders]), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/orders/<int:order_id>', methods=['GET'])
+@jwt_required()
+def get_order(order_id):
+    try:
+        user_id = get_jwt_identity()
+        order = Order.query.filter_by(id=order_id, user_id=user_id).first()
+        
+        if not order:
+            return jsonify({"error": "Order not found"}), 404
+        
+        return jsonify(order.serialize()), 200
+        
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@api.route('/checkout', methods=['POST'])
+@jwt_required()
+def checkout():
+    try:
+        user_id = get_jwt_identity()
+        body = request.get_json()
+        
+        if not body:
+            return jsonify({"error": "Request body is required"}), 400
+        
+        # Validaciones
+        required_fields = ['shipping_address', 'payment_method']
+        for field in required_fields:
+            if field not in body or not body[field]:
+                return jsonify({"error": f"{field} is required"}), 400
+        
+        # Obtener items del carrito
+        cart_items = CartItem.query.filter_by(user_id=user_id).all()
+        
+        if not cart_items:
+            return jsonify({"error": "Cart is empty"}), 400
+        
+        # Calcular total
+        total_amount = 0
+        order_items_data = []
+        
+        for cart_item in cart_items:
+            if not cart_item.product.is_active:
+                return jsonify({"error": f"Product {cart_item.product.name} is not available"}), 400
+            
+            if cart_item.product.stock < cart_item.quantity:
+                return jsonify({"error": f"Insufficient stock for {cart_item.product.name}"}), 400
+            
+            item_total = cart_item.product.price * cart_item.quantity
+            total_amount += item_total
+            
+            order_items_data.append({
+                'product_id': cart_item.product_id,
+                'quantity': cart_item.quantity,
+                'price': cart_item.product.price
+            })
+        
+        # Crear orden
+        order = Order(
+            user_id=user_id,
+            total_amount=total_amount,
+            status='pending',
+            payment_method=body['payment_method'],
+            shipping_address=body['shipping_address']
+        )
+        
+        db.session.add(order)
+        db.session.flush()  # Para obtener el ID de la orden
+        
+        # Crear items de la orden y actualizar stock
+        for item_data in order_items_data:
+            order_item = OrderItem(
+                order_id=order.id,
+                product_id=item_data['product_id'],
+                quantity=item_data['quantity'],
+                price=item_data['price']
+            )
+            db.session.add(order_item)
+            
+            # Actualizar stock
+            product = Product.query.get(item_data['product_id'])
+            product.stock -= item_data['quantity']
+        
+        # Procesar pago (simulado)
+        payment_result = process_payment(
+            amount=total_amount,
+            payment_method=body['payment_method'],
+            order_id=order.id
+        )
+        
+        if payment_result['success']:
+            order.status = 'paid'
+            
+            # Limpiar carrito
+            for cart_item in cart_items:
+                db.session.delete(cart_item)
+        else:
+            order.status = 'payment_failed'
+            return jsonify({"error": "Payment failed", "details": payment_result.get('message')}), 400
+        
+        db.session.commit()
+        
+        return jsonify({
+            "message": "Order created successfully",
+            "order": order.serialize(),
+            "payment": payment_result
+        }), 201
+        
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": str(e)}), 500
+
+def process_payment(amount, payment_method, order_id):
+    """
+    Simulación de procesamiento de pago.
+    En producción, aquí integrarías con Stripe, PayPal, etc.
+    """
+    import random
+    import time
+    
+    # Simular tiempo de procesamiento
+    time.sleep(1)
+    
+    # Simular éxito/fallo (95% éxito)
+    success = random.random() > 0.05
+    
+    if success:
+        return {
+            'success': True,
+            'transaction_id': f'txn_{order_id}_{int(time.time())}',
+            'amount': amount,
+            'payment_method': payment_method,
+            'status': 'completed'
+        }
+    else:
+        return {
+            'success': False,
+            'message': 'Payment declined by bank',
+            'status': 'failed'
+        }
 
 @api.route('/hello', methods=['POST', 'GET'])
 def handle_hello():

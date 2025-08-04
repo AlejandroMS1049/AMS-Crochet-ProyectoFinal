@@ -40,7 +40,6 @@ export const Cart = () => {
     };
 
     const handleCheckout = () => {
-        // Por ahora solo navegar a checkout, implementaremos la pasarela más adelante
         navigate('/checkout');
     };
 
