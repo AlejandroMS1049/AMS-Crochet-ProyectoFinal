@@ -78,6 +78,15 @@ export const Navbar = () => {
 										<i className="fas fa-list me-2"></i>
 										Mis Pedidos
 									</NavDropdown.Item>
+									{store.user.email === 'admin@amscrochet.com' && (
+										<>
+											<NavDropdown.Divider />
+											<NavDropdown.Item as={Link} to="/admin">
+												<i className="fas fa-cog me-2"></i>
+												Administración
+											</NavDropdown.Item>
+										</>
+									)}
 									<NavDropdown.Divider />
 									<NavDropdown.Item onClick={handleLogout}>
 										<i className="fas fa-sign-out-alt me-2"></i>

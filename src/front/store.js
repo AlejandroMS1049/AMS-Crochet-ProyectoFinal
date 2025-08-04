@@ -9,9 +9,10 @@ export const initialStore = () => {
     categories: [],
     cartItems: [],
     orders: [],
-    loading: false
-  }
-}
+    users: [],
+    loading: false,
+  };
+};
 
 export default function storeReducer(store, action = {}) {
   switch (action.type) {
@@ -69,6 +70,12 @@ export default function storeReducer(store, action = {}) {
       return {
         ...store,
         orders: action.payload,
+      };
+
+    case "set_users":
+      return {
+        ...store,
+        users: action.payload,
       };
 
     case "set_loading":

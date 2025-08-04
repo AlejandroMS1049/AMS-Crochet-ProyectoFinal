@@ -110,6 +110,29 @@ export function StoreProvider({ children }) {
             }
         },
 
+        changePassword: async (passwordData) => {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/change-password`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${store.token}`
+                    },
+                    body: JSON.stringify(passwordData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    return { success: true };
+                } else {
+                    return { success: false, message: data.error };
+                }
+            } catch (error) {
+                return { success: false, message: 'Error de conexión' };
+            }
+        },
+
         deleteAccount: async () => {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/profile`, {
@@ -280,18 +303,18 @@ export function StoreProvider({ children }) {
                 return { success: false, message: 'Error de conexión' };
             }
         },
-        
+
         // Orders actions
         getOrders: async () => {
             if (!store.token) return { success: false };
-            
+
             try {
                 const response = await fetch(`${BACKEND_URL}/api/orders`, {
                     headers: {
                         'Authorization': `Bearer ${store.token}`
                     }
                 });
-                
+
                 if (response.ok) {
                     const orders = await response.json();
                     dispatch({ type: 'set_orders', payload: orders });
@@ -302,17 +325,17 @@ export function StoreProvider({ children }) {
                 return { success: false, message: 'Error de conexión' };
             }
         },
-        
+
         getOrder: async (orderId) => {
             if (!store.token) return { success: false };
-            
+
             try {
                 const response = await fetch(`${BACKEND_URL}/api/orders/${orderId}`, {
                     headers: {
                         'Authorization': `Bearer ${store.token}`
                     }
                 });
-                
+
                 if (response.ok) {
                     const order = await response.json();
                     return { success: true, data: order };
@@ -323,10 +346,10 @@ export function StoreProvider({ children }) {
                 return { success: false, message: 'Error de conexión' };
             }
         },
-        
+
         checkout: async (checkoutData) => {
             if (!store.token) return { success: false, message: 'Debes iniciar sesión' };
-            
+
             try {
                 const response = await fetch(`${BACKEND_URL}/api/checkout`, {
                     method: 'POST',
@@ -336,9 +359,9 @@ export function StoreProvider({ children }) {
                     },
                     body: JSON.stringify(checkoutData)
                 });
-                
+
                 const data = await response.json();
-                
+
                 if (response.ok) {
                     // Limpiar carrito después del checkout exitoso
                     dispatch({ type: 'set_cart_items', payload: [] });
@@ -348,6 +371,101 @@ export function StoreProvider({ children }) {
                 } else {
                     return { success: false, message: data.error };
                 }
+            } catch (error) {
+                return { success: false, message: 'Error de conexión' };
+            }
+        },
+
+        // Admin actions - CRUD completo para productos
+        createProduct: async (productData) => {
+            if (!store.token) return { success: false, message: 'Debes iniciar sesión' };
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/products`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${store.token}`
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    return { success: true, data };
+                } else {
+                    return { success: false, message: data.error };
+                }
+            } catch (error) {
+                return { success: false, message: 'Error de conexión' };
+            }
+        },
+
+        updateProduct: async (productId, productData) => {
+            if (!store.token) return { success: false, message: 'Debes iniciar sesión' };
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/products/${productId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${store.token}`
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    return { success: true, data };
+                } else {
+                    return { success: false, message: data.error };
+                }
+            } catch (error) {
+                return { success: false, message: 'Error de conexión' };
+            }
+        },
+
+        deleteProduct: async (productId) => {
+            if (!store.token) return { success: false, message: 'Debes iniciar sesión' };
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${store.token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    return { success: true, message: data.message };
+                } else {
+                    return { success: false, message: data.error };
+                }
+            } catch (error) {
+                return { success: false, message: 'Error de conexión' };
+            }
+        },
+
+        getAllUsers: async () => {
+            if (!store.token) return { success: false };
+
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/admin/users`, {
+                    headers: {
+                        'Authorization': `Bearer ${store.token}`
+                    }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    dispatch({ type: 'set_users', payload: users });
+                    return { success: true, data: users };
+                }
+                return { success: false };
             } catch (error) {
                 return { success: false, message: 'Error de conexión' };
             }

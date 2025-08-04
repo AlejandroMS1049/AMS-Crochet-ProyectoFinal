@@ -18,6 +18,7 @@ import { Cart } from "./pages/Cart";
 import { Checkout } from "./pages/Checkout";
 import { OrderSuccess } from "./pages/OrderSuccess";
 import { Orders } from "./pages/Orders";
+import { Admin } from "./pages/Admin";
 
 export const router = createBrowserRouter(
   createRoutesFromElements(
@@ -37,13 +38,16 @@ export const router = createBrowserRouter(
       <Route path="/profile" element={<Profile />} />
       <Route path="/products" element={<Products />} />
       <Route path="/product/:productId" element={<ProductDetail />} />
-      
+
       {/* Cart & Checkout Routes */}
       <Route path="/cart" element={<Cart />} />
       <Route path="/checkout" element={<Checkout />} />
       <Route path="/order-success" element={<OrderSuccess />} />
       <Route path="/orders" element={<Orders />} />
-      
+
+      {/* Admin Routes */}
+      <Route path="/admin" element={<Admin />} />
+
       <Route path="/single/:theId" element={<Single />} />  {/* Dynamic route for single items */}
       <Route path="/demo" element={<Demo />} />
     </Route>

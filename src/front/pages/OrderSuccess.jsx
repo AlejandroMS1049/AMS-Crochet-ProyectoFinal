@@ -26,9 +26,9 @@ export const OrderSuccess = () => {
                             <div className="mb-4">
                                 <i className="fas fa-check-circle fa-5x text-success"></i>
                             </div>
-                            
+
                             <h2 className="mb-4">¡Pedido Realizado con Éxito!</h2>
-                            
+
                             <Alert variant="success" className="mb-4">
                                 <strong>Número de pedido: #{order.id}</strong>
                                 <br />
@@ -41,10 +41,10 @@ export const OrderSuccess = () => {
                                     <p><strong>Total:</strong> ${order.total_amount.toFixed(2)}</p>
                                     <p><strong>Método de pago:</strong> {
                                         order.payment_method === 'credit_card' ? 'Tarjeta de Crédito' :
-                                        order.payment_method === 'paypal' ? 'PayPal' :
-                                        'Pago contra entrega'
+                                            order.payment_method === 'paypal' ? 'PayPal' :
+                                                'Pago contra entrega'
                                     }</p>
-                                    <p><strong>Estado:</strong> 
+                                    <p><strong>Estado:</strong>
                                         <span className="badge bg-success ms-2">Pagado</span>
                                     </p>
                                 </Col>

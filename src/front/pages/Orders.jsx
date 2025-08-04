@@ -26,7 +26,7 @@ export const Orders = () => {
             'cancelled': { variant: 'danger', text: 'Cancelado' },
             'payment_failed': { variant: 'danger', text: 'Pago Fallido' }
         };
-        
+
         const config = statusConfig[status] || { variant: 'secondary', text: status };
         return <Badge bg={config.variant}>{config.text}</Badge>;
     };
@@ -87,7 +87,7 @@ export const Orders = () => {
                                                     </small>
                                                 </div>
                                             </Col>
-                                            
+
                                             <Col md={3}>
                                                 <div>
                                                     <strong>${order.total_amount.toFixed(2)}</strong>
@@ -97,19 +97,19 @@ export const Orders = () => {
                                                     </small>
                                                 </div>
                                             </Col>
-                                            
+
                                             <Col md={2}>
                                                 {getStatusBadge(order.status)}
                                             </Col>
-                                            
+
                                             <Col md={3}>
                                                 <small className="text-muted">
                                                     {order.payment_method === 'credit_card' ? 'Tarjeta de Crédito' :
-                                                     order.payment_method === 'paypal' ? 'PayPal' :
-                                                     'Pago contra entrega'}
+                                                        order.payment_method === 'paypal' ? 'PayPal' :
+                                                            'Pago contra entrega'}
                                                 </small>
                                             </Col>
-                                            
+
                                             <Col md={2} className="text-end">
                                                 <Button
                                                     variant="outline-primary"
@@ -144,8 +144,8 @@ export const Orders = () => {
                                     <p><strong>Total:</strong> ${selectedOrder.total_amount.toFixed(2)}</p>
                                     <p><strong>Método de pago:</strong> {
                                         selectedOrder.payment_method === 'credit_card' ? 'Tarjeta de Crédito' :
-                                        selectedOrder.payment_method === 'paypal' ? 'PayPal' :
-                                        'Pago contra entrega'
+                                            selectedOrder.payment_method === 'paypal' ? 'PayPal' :
+                                                'Pago contra entrega'
                                     }</p>
                                 </Col>
                                 <Col md={6}>

@@ -22,12 +22,12 @@ export const Checkout = () => {
             navigate('/login');
             return;
         }
-        
+
         if (!store.cartItems || store.cartItems.length === 0) {
             navigate('/cart');
             return;
         }
-        
+
         // Pre-llenar dirección si está en el perfil
         if (store.user.address) {
             setFormData(prev => ({
@@ -149,7 +149,7 @@ export const Checkout = () => {
                         </Card.Header>
                         <Card.Body>
                             {error && <Alert variant="danger">{error}</Alert>}
-                            
+
                             <Form onSubmit={handleSubmit}>
                                 {/* Dirección de Envío */}
                                 <div className="mb-4">
@@ -265,9 +265,9 @@ export const Checkout = () => {
                                 )}
 
                                 <div className="d-grid gap-2">
-                                    <Button 
-                                        type="submit" 
-                                        size="lg" 
+                                    <Button
+                                        type="submit"
+                                        size="lg"
                                         disabled={loading}
                                         variant="success"
                                     >
@@ -304,9 +304,9 @@ export const Checkout = () => {
                                     </ListGroup.Item>
                                 ))}
                             </ListGroup>
-                            
+
                             <hr />
-                            
+
                             <div className="d-flex justify-content-between mb-2">
                                 <span>Subtotal:</span>
                                 <span>${calculateTotal().toFixed(2)}</span>
