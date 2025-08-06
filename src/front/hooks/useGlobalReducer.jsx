@@ -1,8 +1,25 @@
 // Import necessary hooks and functions from React.
 import { useContext, useReducer, createContext } from "react";
 import storeReducer, { initialStore } from "../store"  // Import the reducer and the initial state.
+import axios from 'axios';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+
+console.log('BACKEND_URL configured as:', BACKEND_URL);
+console.log('All env vars:', import.meta.env);
+
+// Configure axios defaults
+axios.defaults.timeout = 10000; // 10 seconds timeout
+axios.defaults.headers.common['Content-Type'] = 'application/json';
+
+// Create axios instance with specific configuration for development
+const apiClient = axios.create({
+    baseURL: BACKEND_URL, // Empty baseURL means relative URLs
+    timeout: 10000,
+    headers: {
+        'Content-Type': 'application/json'
+    }
+});
 
 // Create a context to hold the global state of the application
 // We will call this global state the "store" to avoid confusion while using local states
@@ -19,25 +36,43 @@ export function StoreProvider({ children }) {
         // Auth actions
         login: async (email, password) => {
             try {
-                const response = await fetch(`${BACKEND_URL}/api/login`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ email, password })
+                console.log('Attempting login with axios:', { email, backend: BACKEND_URL });
+
+                const response = await apiClient.post('/api/login', {
+                    email,
+                    password
                 });
 
-                const data = await response.json();
+                console.log('Axios response:', response);
+                console.log('Response data:', response.data);
 
-                if (response.ok) {
-                    dispatch({ type: 'set_token', payload: data.access_token });
-                    dispatch({ type: 'set_user', payload: data.user });
+                if (response.data && response.data.access_token) {
+                    dispatch({ type: 'set_token', payload: response.data.access_token });
+                    dispatch({ type: 'set_user', payload: response.data.user });
                     return { success: true };
                 } else {
-                    return { success: false, message: data.error };
+                    return { success: false, message: response.data.error || 'Login failed' };
                 }
             } catch (error) {
-                return { success: false, message: 'Error de conexión' };
+                console.error('Login error with axios:', error);
+                console.error('Error response:', error.response);
+                console.error('Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    code: error.code,
+                    response: error.response?.data
+                });
+
+                if (error.response) {
+                    // Server responded with error status
+                    return { success: false, message: error.response.data.error || 'Server error' };
+                } else if (error.request) {
+                    // Request was made but no response received
+                    return { success: false, message: 'No response from server. Make sure backend is running on port 3001.' };
+                } else {
+                    // Something else happened
+                    return { success: false, message: 'Error de conexión: ' + error.message };
+                }
             }
         },
 
@@ -381,24 +416,24 @@ export function StoreProvider({ children }) {
             if (!store.token) return { success: false, message: 'Debes iniciar sesión' };
 
             try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/products`, {
-                    method: 'POST',
+                const response = await apiClient.post('/api/admin/products', productData, {
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${store.token}`
-                    },
-                    body: JSON.stringify(productData)
+                    }
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    return { success: true, data };
+                if (response.data) {
+                    return { success: true, data: response.data };
                 } else {
-                    return { success: false, message: data.error };
+                    return { success: false, message: 'Error al crear producto' };
                 }
             } catch (error) {
-                return { success: false, message: 'Error de conexión' };
+                console.error('Create product error:', error);
+                if (error.response) {
+                    return { success: false, message: error.response.data.error || 'Error del servidor' };
+                } else {
+                    return { success: false, message: 'Error de conexión' };
+                }
             }
         },
 
@@ -406,24 +441,24 @@ export function StoreProvider({ children }) {
             if (!store.token) return { success: false, message: 'Debes iniciar sesión' };
 
             try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/products/${productId}`, {
-                    method: 'PUT',
+                const response = await apiClient.put(`/api/admin/products/${productId}`, productData, {
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${store.token}`
-                    },
-                    body: JSON.stringify(productData)
+                    }
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    return { success: true, data };
+                if (response.data) {
+                    return { success: true, data: response.data };
                 } else {
-                    return { success: false, message: data.error };
+                    return { success: false, message: 'Error al actualizar producto' };
                 }
             } catch (error) {
-                return { success: false, message: 'Error de conexión' };
+                console.error('Update product error:', error);
+                if (error.response) {
+                    return { success: false, message: error.response.data.error || 'Error del servidor' };
+                } else {
+                    return { success: false, message: 'Error de conexión' };
+                }
             }
         },
 
@@ -431,22 +466,40 @@ export function StoreProvider({ children }) {
             if (!store.token) return { success: false, message: 'Debes iniciar sesión' };
 
             try {
-                const response = await fetch(`${BACKEND_URL}/api/admin/products/${productId}`, {
-                    method: 'DELETE',
+                console.log('Attempting to delete product:', productId, 'with token:', store.token ? 'Token exists' : 'No token');
+                
+                const response = await apiClient.delete(`/api/admin/products/${productId}`, {
                     headers: {
                         'Authorization': `Bearer ${store.token}`
                     }
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    return { success: true, message: data.message };
+                console.log('Delete response:', response);
+                
+                if (response.data) {
+                    // Actualizar la lista de productos localmente
+                    dispatch({ type: 'remove_product', payload: productId });
+                    return { success: true, message: response.data.message };
                 } else {
-                    return { success: false, message: data.error };
+                    return { success: false, message: 'Error al eliminar producto' };
                 }
             } catch (error) {
-                return { success: false, message: 'Error de conexión' };
+                console.error('Delete product error:', error);
+                console.error('Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    code: error.code,
+                    response: error.response?.data,
+                    status: error.response?.status
+                });
+                
+                if (error.response) {
+                    return { success: false, message: error.response.data.error || `Error del servidor: ${error.response.status}` };
+                } else if (error.request) {
+                    return { success: false, message: 'No response from server' };
+                } else {
+                    return { success: false, message: 'Error de conexión: ' + error.message };
+                }
             }
         },
 

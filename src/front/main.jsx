@@ -8,7 +8,11 @@ import { BackendURL } from './components/BackendURL';
 
 const Main = () => {
     
-    if(! import.meta.env.VITE_BACKEND_URL ||  import.meta.env.VITE_BACKEND_URL == "") return (
+    // En desarrollo, permitir BACKEND_URL vacío cuando usamos proxy
+    const isDevelopment = import.meta.env.MODE === 'development';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    
+    if(!isDevelopment && (!backendUrl || backendUrl === "")) return (
         <React.StrictMode>
               <BackendURL/ >
         </React.StrictMode>

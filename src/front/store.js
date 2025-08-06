@@ -54,6 +54,12 @@ export default function storeReducer(store, action = {}) {
         products: action.payload,
       };
 
+    case "remove_product":
+      return {
+        ...store,
+        products: store.products.filter(product => product.id !== action.payload),
+      };
+
     case "set_categories":
       return {
         ...store,
