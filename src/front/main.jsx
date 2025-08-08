@@ -7,21 +7,21 @@ import { StoreProvider } from './hooks/useGlobalReducer';  // Import the StorePr
 import { BackendURL } from './components/BackendURL';
 
 const Main = () => {
-    
+
     // En desarrollo, permitir BACKEND_URL vacío cuando usamos proxy
     const isDevelopment = import.meta.env.MODE === 'development';
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    
-    if(!isDevelopment && (!backendUrl || backendUrl === "")) return (
+
+    if (!isDevelopment && (!backendUrl || backendUrl === "")) return (
         <React.StrictMode>
-              <BackendURL/ >
+            <BackendURL />
         </React.StrictMode>
-        );
+    );
     return (
-        <React.StrictMode>  
+        <React.StrictMode>
             {/* Provide global state to all components */}
-            <StoreProvider> 
-                {/* Set up routing for the application */} 
+            <StoreProvider>
+                {/* Set up routing for the application */}
                 <RouterProvider router={router}>
                 </RouterProvider>
             </StoreProvider>

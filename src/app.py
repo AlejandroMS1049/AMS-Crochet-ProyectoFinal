@@ -14,16 +14,27 @@ from api.admin import setup_admin
 from api.commands import setup_commands
 from datetime import timedelta
 
-# from models import Person
-
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
+
+# Crear la aplicación Flask
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
-# CORS Configuration - Permitir todas las conexiones durante desarrollo
-CORS(app, origins="*")
+# CORS Configuration - Configurado para frontend en puerto 3000
+CORS(app, resources={
+    r"/api/*": {
+        "origins": [
+            "http://localhost:3000",
+            "http://127.0.0.1:3000",
+            "https://*.gitpod.io",
+            "https://*.codespaces.githubusercontent.com"
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 # JWT Configuration
 app.config['JWT_SECRET_KEY'] = os.getenv(
@@ -31,7 +42,28 @@ app.config['JWT_SECRET_KEY'] = os.getenv(
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 jwt = JWTManager(app)
 
-# database condiguration
+# JWT Error handlers
+
+
+@jwt.expired_token_loader
+def expired_token_callback(jwt_header, jwt_payload):
+    print("JWT token expired")
+    return jsonify({"error": "Token has expired"}), 401
+
+
+@jwt.invalid_token_loader
+def invalid_token_callback(error):
+    print(f"Invalid JWT token: {error}")
+    return jsonify({"error": "Invalid token"}), 422
+
+
+@jwt.unauthorized_loader
+def unauthorized_callback(error):
+    print(f"Unauthorized JWT: {error}")
+    return jsonify({"error": "Authentication required"}), 401
+
+
+# Database configuration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
@@ -43,13 +75,13 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
 
-# add the admin
+# Setup admin
 setup_admin(app)
 
-# add the admin
+# Setup commands
 setup_commands(app)
 
-# Add all endpoints form the API with a "api" prefix
+# Add all endpoints from the API with a "api" prefix
 app.register_blueprint(api, url_prefix='/api')
 
 # Handle/serialize errors like a JSON object
@@ -59,7 +91,7 @@ app.register_blueprint(api, url_prefix='/api')
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
-# generate sitemap with all your endpoints
+# Generate sitemap with all your endpoints
 
 
 @app.route('/')
@@ -68,7 +100,7 @@ def sitemap():
         return generate_sitemap(app)
     return send_from_directory(static_file_dir, 'index.html')
 
-# any other endpoint will try to serve it like a static file
+# Any other endpoint will try to serve it like a static file
 
 
 @app.route('/<path:path>', methods=['GET'])
@@ -80,7 +112,9 @@ def serve_any_other_file(path):
     return response
 
 
-# this only runs if `$ python src/main.py` is executed
+# This only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
+    print(f"🚀 Starting Flask server on port {PORT}...")
+    print("🔗 CORS configured for frontend on port 3000")
     app.run(host='0.0.0.0', port=PORT, debug=True)

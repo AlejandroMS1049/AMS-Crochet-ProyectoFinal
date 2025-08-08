@@ -1,8 +1,16 @@
 """
 Script para crear usuario administrador y datos de muestra
 """
+from app import app
 from api.models import db, User, Category, Product
 from werkzeug.security import generate_password_hash
+import sys
+import os
+
+# Add the src directory to the path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Import the app
 
 
 def create_admin_user():
@@ -179,14 +187,34 @@ def create_sample_data():
     print("- 10 productos de ejemplo")
 
 
-if __name__ == '__main__':
-    from app import app
+with app.app_context():
+    try:
+        create_sample_data()
+    except Exception as e:
+        print(f"Error: {e}")
+        # Intenta crear las tablas primero
+        db.create_all()
+        create_sample_data()
 
-    with app.app_context():
-        try:
-            create_sample_data()
-        except Exception as e:
-            print(f"Error: {e}")
-            # Intenta crear las tablas primero
-            db.create_all()
-            create_sample_data()
+    # Check if test user exists
+    test_user = User.query.filter_by(email='test@example.com').first()
+
+    if not test_user:
+        print("Creating test user...")
+        hashed_password = generate_password_hash('password123')
+        test_user = User(
+            email='test@example.com',
+            password=hashed_password,
+            is_active=True
+        )
+        db.session.add(test_user)
+        db.session.commit()
+        print("Test user created successfully")
+    else:
+        print(f"Test user exists: {test_user.email}")
+
+    # Check all users
+    all_users = User.query.all()
+    print(f"Total users in database: {len(all_users)}")
+    for user in all_users:
+        print(f"- {user.email} (ID: {user.id})")

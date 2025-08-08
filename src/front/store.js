@@ -57,7 +57,9 @@ export default function storeReducer(store, action = {}) {
     case "remove_product":
       return {
         ...store,
-        products: store.products.filter(product => product.id !== action.payload),
+        products: store.products.filter(
+          (product) => product.id !== action.payload
+        ),
       };
 
     case "set_categories":

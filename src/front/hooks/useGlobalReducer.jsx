@@ -467,7 +467,7 @@ export function StoreProvider({ children }) {
 
             try {
                 console.log('Attempting to delete product:', productId, 'with token:', store.token ? 'Token exists' : 'No token');
-                
+
                 const response = await apiClient.delete(`/api/admin/products/${productId}`, {
                     headers: {
                         'Authorization': `Bearer ${store.token}`
@@ -475,7 +475,7 @@ export function StoreProvider({ children }) {
                 });
 
                 console.log('Delete response:', response);
-                
+
                 if (response.data) {
                     // Actualizar la lista de productos localmente
                     dispatch({ type: 'remove_product', payload: productId });
@@ -492,7 +492,7 @@ export function StoreProvider({ children }) {
                     response: error.response?.data,
                     status: error.response?.status
                 });
-                
+
                 if (error.response) {
                     return { success: false, message: error.response.data.error || `Error del servidor: ${error.response.status}` };
                 } else if (error.request) {
