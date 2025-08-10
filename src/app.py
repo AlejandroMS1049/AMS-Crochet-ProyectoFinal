@@ -31,12 +31,13 @@ CORS(app, resources={
             "http://localhost:3000",
             "http://127.0.0.1:3000",
             "https://*.gitpod.io",
-            "https://*.codespaces.githubusercontent.com"
+            "https://*.codespaces.githubusercontent.com",
+            "https://special-parakeet-jjv5xj9v6p5f5jw9-3001.app.github.dev"
         ],
         "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
-})
+}, supports_credentials=True)
 
 app.config['JWT_SECRET_KEY'] = os.getenv(
     'JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')

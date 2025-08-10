@@ -3,18 +3,15 @@ import { useContext, useReducer, createContext } from "react";
 import storeReducer, { initialStore } from "../store"  // Import the reducer and the initial state.
 import axios from 'axios';
 
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+let BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
+if (BACKEND_URL.startsWith('"') && BACKEND_URL.endsWith('"')) {
+    BACKEND_URL = BACKEND_URL.slice(1, -1);
+}
+console.log('BACKEND_URL configurado como:', BACKEND_URL);
 
-console.log('BACKEND_URL configured as:', BACKEND_URL);
-console.log('All env vars:', import.meta.env.VITE_BACKEND_URL);
-
-// Configure axios defaults
-axios.defaults.timeout = 10000; // 10 seconds timeout
-axios.defaults.headers.common['Content-Type'] = 'application/json';
-
-// Create axios instance with specific configuration for development
+// Configuración de axios
 const apiClient = axios.create({
-    baseURL: BACKEND_URL, // Empty baseURL means relative URLs
+    baseURL: BACKEND_URL,
     timeout: 10000,
     headers: {
         'Content-Type': 'application/json'
@@ -36,43 +33,38 @@ export function StoreProvider({ children }) {
         // Auth actions
         login: async (email, password) => {
             try {
-                console.log('Attempting login with axios:', { email, backend: BACKEND_URL });
-
+                console.log('Intentando login con axios:', { email, password, backend: BACKEND_URL });
+                const url = BACKEND_URL + '/api/login';
+                console.log('URL de login:', url);
                 const response = await apiClient.post('/api/login', {
                     email,
                     password
                 });
-
-                console.log('Axios response:', response);
-                console.log('Response data:', response.data);
-
+                console.log('Respuesta axios:', response);
                 if (response.data && (response.data.token || response.data.access_token)) {
                     const token = response.data.token || response.data.access_token;
                     dispatch({ type: 'set_token', payload: token });
                     dispatch({ type: 'set_user', payload: response.data.user });
                     return { success: true };
                 } else {
-                    return { success: false, message: response.data.error || 'Login failed' };
+                    console.warn('Login fallido, respuesta inesperada:', response.data);
+                    return { success: false, message: response.data.error || 'Login fallido' };
                 }
             } catch (error) {
-                console.error('Login error with axios:', error);
-                console.error('Error response:', error.response);
-                console.error('Error details:', {
-                    name: error.name,
-                    message: error.message,
-                    code: error.code,
-                    response: error.response?.data
-                });
-
+                console.error('Error completo de login:', error);
                 if (error.response) {
-                    // Server responded with error status
-                    return { success: false, message: error.response.data.error || 'Server error' };
+                    // El servidor respondió con un error
+                    console.error('Error de login (respuesta):', error.response.data);
+                    return { success: false, message: error.response.data.error || 'Error del servidor' };
                 } else if (error.request) {
-                    // Request was made but no response received
-                    return { success: false, message: 'No response from server. Make sure backend is running on port 3001.' };
+                    // No hubo respuesta del servidor
+                    console.error('Error de login (sin respuesta):', error.message);
+                    console.error('Detalles del request:', error.request);
+                    return { success: false, message: 'No hay respuesta del backend. Verifica que esté corriendo y el puerto esté expuesto.' };
                 } else {
-                    // Something else happened
-                    return { success: false, message: 'Error de conexión: ' + error.message };
+                    // Otro error de red
+                    console.error('Error de login (red):', error.message);
+                    return { success: false, message: 'Error de red: ' + error.message };
                 }
             }
         },

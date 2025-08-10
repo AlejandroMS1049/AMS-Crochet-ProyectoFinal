@@ -1,93 +1,90 @@
 """
 Script para crear usuario administrador y datos de muestra
 """
-from app import app
-from api.models import db, User, Category, Product
 from werkzeug.security import generate_password_hash
+from api.models import db, User, Category, Product
+from app import app
 import sys
 import os
 
 # Add the src directory to the path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-# Import the app
 
+def create_users():
+    """Crea usuarios de prueba"""
+    users_data = [
+        {
+            'email': 'admin@amscrochet.com',
+            'password': 'admin123',
+            'first_name': 'Admin',
+            'last_name': 'AMS Crochet'
+        },
+        {
+            'email': 'test@example.com',
+            'password': 'password123',
+            'first_name': 'Test',
+            'last_name': 'User'
+        }
+    ]
 
-def create_admin_user():
-    """Crea un usuario administrador"""
-    admin_email = 'admin@amscrochet.com'
+    for user_data in users_data:
+        # Verificar si ya existe
+        existing_user = User.query.filter_by(email=user_data['email']).first()
+        if existing_user:
+            print(f"Usuario ya existe: {user_data['email']}")
+            continue
 
-    # Verificar si ya existe
-    existing_admin = User.query.filter_by(email=admin_email).first()
-    if existing_admin:
-        print("Usuario administrador ya existe")
-        return existing_admin
+        # Crear usuario
+        user = User(
+            email=user_data['email'],
+            password=generate_password_hash(user_data['password']),
+            first_name=user_data['first_name'],
+            last_name=user_data['last_name'],
+            is_active=True
+        )
 
-    # Crear usuario administrador
-    admin = User(
-        email=admin_email,
-        first_name='Admin',
-        last_name='AMS Crochet',
-        phone='',
-        address=''
-    )
-    admin.set_password('admin123')  # Contraseña por defecto
+        db.session.add(user)
+        print(
+            f"Usuario creado: {user_data['email']} / {user_data['password']}")
 
-    db.session.add(admin)
     db.session.commit()
 
-    print(f"Usuario administrador creado: {admin_email} / admin123")
-    return admin
 
-
-def create_sample_data():
-    """Crea datos de muestra para la tienda"""
-
-    # Crear administrador primero
-    create_admin_user()
-
-    # Verificar si ya existen categorías
+def create_categories():
+    """Crea categorías de productos"""
     if Category.query.count() > 0:
         print("Las categorías ya existen")
         return
 
-    # Crear categorías
     categories = [
-        {
-            'name': 'Amigurumis',
-            'description': 'Muñecos y figuras tejidas a crochet'
-        },
-        {
-            'name': 'Ropa',
-            'description': 'Prendas de vestir hechas a crochet'
-        },
-        {
-            'name': 'Accesorios',
-            'description': 'Bolsos, carteras y accesorios'
-        },
-        {
-            'name': 'Decoración',
-            'description': 'Elementos decorativos para el hogar'
-        }
+        {'name': 'Amigurumis', 'description': 'Muñecos y figuras tejidas a crochet'},
+        {'name': 'Ropa', 'description': 'Prendas de vestir hechas a crochet'},
+        {'name': 'Accesorios', 'description': 'Bolsos, carteras y accesorios'},
+        {'name': 'Decoración', 'description': 'Elementos decorativos para el hogar'}
     ]
 
-    category_objects = []
     for cat_data in categories:
         category = Category(
             name=cat_data['name'],
             description=cat_data['description']
         )
         db.session.add(category)
-        category_objects.append(category)
 
     db.session.commit()
     print("Categorías creadas exitosamente")
 
-    # Crear productos
+
+def create_products():
+    """Crea productos de muestra"""
+    if Product.query.count() > 0:
+        print("Los productos ya existen")
+        return
+
     products = [
         {
             'name': 'Osito de Peluche',
-            'description': 'Adorable osito tejido a mano con hilo suave. Perfecto para bebés y niños. Hecho con materiales hipoalergénicos y seguros.',
+            'description': 'Adorable osito tejido a mano con hilo suave.',
             'price': 25.99,
             'stock': 10,
             'category_id': 1,
@@ -95,7 +92,7 @@ def create_sample_data():
         },
         {
             'name': 'Bufanda Multicolor',
-            'description': 'Bufanda tejida con colores vibrantes, ideal para días fríos. Suave y cálida, perfecta para cualquier ocasión.',
+            'description': 'Bufanda tejida con colores vibrantes.',
             'price': 18.50,
             'stock': 15,
             'category_id': 2,
@@ -103,67 +100,11 @@ def create_sample_data():
         },
         {
             'name': 'Bolso de Playa',
-            'description': 'Bolso espacioso y resistente, perfecto para llevar a la playa. Con asas reforzadas y diseño elegante.',
+            'description': 'Bolso espacioso y resistente.',
             'price': 32.00,
             'stock': 8,
             'category_id': 3,
             'image_url': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&w=500'
-        },
-        {
-            'name': 'Cojín Decorativo',
-            'description': 'Hermoso cojín con patrones geométricos para decorar tu sofá. Relleno incluido y funda lavable.',
-            'price': 22.75,
-            'stock': 12,
-            'category_id': 4,
-            'image_url': 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&w=500'
-        },
-        {
-            'name': 'Unicornio Mágico',
-            'description': 'Unicornio colorido con cuerno dorado y cola de arcoíris. Un regalo perfecto para los más pequeños.',
-            'price': 28.99,
-            'stock': 6,
-            'category_id': 1,
-            'image_url': 'https://images.unsplash.com/photo-1550558111-6cdcf8c59369?ixlib=rb-4.0.3&w=500'
-        },
-        {
-            'name': 'Gorro de Invierno',
-            'description': 'Gorro cálido con pompón, disponible en varios colores. Tejido con lana suave y resistente.',
-            'price': 15.00,
-            'stock': 20,
-            'category_id': 2,
-            'image_url': 'https://images.unsplash.com/photo-1552628813-aa2d85757f1c?ixlib=rb-4.0.3&w=500'
-        },
-        {
-            'name': 'Monedero Pequeño',
-            'description': 'Monedero compacto con cremallera y forro interior. Perfecto para llevar tarjetas y monedas.',
-            'price': 12.50,
-            'stock': 25,
-            'category_id': 3,
-            'image_url': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&w=500'
-        },
-        {
-            'name': 'Mantel Individual',
-            'description': 'Set de manteles individuales con diseño floral. Fáciles de lavar y resistentes al uso diario.',
-            'price': 16.25,
-            'stock': 18,
-            'category_id': 4,
-            'image_url': 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&w=500'
-        },
-        {
-            'name': 'Elefante de Peluche',
-            'description': 'Tierno elefante gris con detalles bordados. Ideal como compañero de juegos o decoración.',
-            'price': 31.50,
-            'stock': 7,
-            'category_id': 1,
-            'image_url': 'https://images.unsplash.com/photo-1529927066849-79b791a69825?ixlib=rb-4.0.3&w=500'
-        },
-        {
-            'name': 'Chaleco Elegante',
-            'description': 'Chaleco tejido con diseño clásico, perfecto para ocasiones especiales. Disponible en varios talles.',
-            'price': 42.00,
-            'stock': 5,
-            'category_id': 2,
-            'image_url': 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5a?ixlib=rb-4.0.3&w=500'
         }
     ]
 
@@ -181,40 +122,26 @@ def create_sample_data():
 
     db.session.commit()
     print("Productos creados exitosamente")
-    print("\nDatos de muestra creados:")
-    print("- Usuario administrador: admin@amscrochet.com / admin123")
-    print("- 4 categorías de productos")
-    print("- 10 productos de ejemplo")
 
 
-with app.app_context():
-    try:
-        create_sample_data()
-    except Exception as e:
-        print(f"Error: {e}")
-        # Intenta crear las tablas primero
-        db.create_all()
-        create_sample_data()
+if __name__ == '__main__':
+    with app.app_context():
+        try:
+            # Crear tablas si no existen
+            db.create_all()
 
-    # Check if test user exists
-    test_user = User.query.filter_by(email='test@example.com').first()
+            # Crear datos de muestra
+            create_users()
+            create_categories()
+            create_products()
 
-    if not test_user:
-        print("Creating test user...")
-        hashed_password = generate_password_hash('password123')
-        test_user = User(
-            email='test@example.com',
-            password=hashed_password,
-            is_active=True
-        )
-        db.session.add(test_user)
-        db.session.commit()
-        print("Test user created successfully")
-    else:
-        print(f"Test user exists: {test_user.email}")
+            print("\n✅ Datos de muestra creados exitosamente:")
+            print("- Usuarios: admin@amscrochet.com / admin123")
+            print("- Usuarios: test@example.com / password123")
+            print("- 4 categorías de productos")
+            print("- 3 productos de ejemplo")
 
-    # Check all users
-    all_users = User.query.all()
-    print(f"Total users in database: {len(all_users)}")
-    for user in all_users:
-        print(f"- {user.email} (ID: {user.id})")
+        except Exception as e:
+            print(f"Error: {e}")
+            import traceback
+            traceback.print_exc()

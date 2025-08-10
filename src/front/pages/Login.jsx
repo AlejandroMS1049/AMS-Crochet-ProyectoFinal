@@ -28,6 +28,10 @@ export const Login = () => {
         try {
             const result = await actions.login(formData.email, formData.password);
             if (result.success) {
+                // Guardar token en el almacenamiento local
+                localStorage.setItem('token', result.token);
+
+                // Redirigir al usuario a la página de inicio
                 navigate('/');
             } else {
                 setError(result.message || 'Error al iniciar sesión');
