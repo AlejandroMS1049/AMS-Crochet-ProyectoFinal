@@ -42,7 +42,7 @@ export const Home = () => {
 						<Col md={6}>
 							<div className="text-center">
 								<img
-									src="https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+									src="https://media.istockphoto.com/id/485725914/es/foto/ganchillo-de-amor.jpg?s=612x612&w=0&k=20&c=U7KMZtTAW1uESgLSRZXNj4cwPAWAHOv59wSs79hOrjs="
 									alt="Crochet products"
 									className="img-fluid rounded shadow"
 								/>
@@ -157,7 +157,7 @@ export const Home = () => {
 					<Row className="align-items-center">
 						<Col md={6}>
 							<img
-								src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80"
+								src="https://www.crochetisimo.com/wp-content/uploads/2025/07/Mas-Alla-de-los-Patrones-Guia-para-el-Crochet-Creativo-490x550.jpg"
 								alt="Artisan working"
 								className="img-fluid rounded shadow"
 							/>

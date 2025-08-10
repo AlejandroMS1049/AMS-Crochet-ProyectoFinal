@@ -6,9 +6,13 @@ from api.models import db, User, Category, Product
 from app import app
 import sys
 import os
+from dotenv import load_dotenv
 
 # Add the src directory to the path
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+# Cargar variables de entorno
+load_dotenv()
 
 
 def create_users():

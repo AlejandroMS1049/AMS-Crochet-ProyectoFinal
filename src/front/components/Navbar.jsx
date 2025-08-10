@@ -18,7 +18,7 @@ export const Navbar = () => {
 		<BootstrapNavbar bg="white" expand="lg" className="shadow-sm">
 			<Container>
 				<BootstrapNavbar.Brand as={Link} to="/" className="fw-bold text-primary">
-					<i className="fas fa-heart me-2"></i>
+					<img src="/crochet.ico" alt="crochet" style={{ width: "28px", marginRight: "8px", verticalAlign: "middle" }} />
 					AMS Crochet
 				</BootstrapNavbar.Brand>
 
