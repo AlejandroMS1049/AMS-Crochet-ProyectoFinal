@@ -6,7 +6,7 @@ import axios from 'axios';
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
 
 console.log('BACKEND_URL configured as:', BACKEND_URL);
-console.log('All env vars:', import.meta.env);
+console.log('All env vars:', import.meta.env.VITE_BACKEND_URL);
 
 // Configure axios defaults
 axios.defaults.timeout = 10000; // 10 seconds timeout
@@ -46,8 +46,9 @@ export function StoreProvider({ children }) {
                 console.log('Axios response:', response);
                 console.log('Response data:', response.data);
 
-                if (response.data && response.data.access_token) {
-                    dispatch({ type: 'set_token', payload: response.data.access_token });
+                if (response.data && (response.data.token || response.data.access_token)) {
+                    const token = response.data.token || response.data.access_token;
+                    dispatch({ type: 'set_token', payload: token });
                     dispatch({ type: 'set_user', payload: response.data.user });
                     return { success: true };
                 } else {

@@ -2,6 +2,8 @@
 This module takes care of starting the API Server, Loading the DB and Adding the endpoints
 """
 import os
+import sys
+from datetime import timedelta
 from flask import Flask, request, jsonify, url_for, send_from_directory
 from flask_migrate import Migrate
 from flask_swagger import swagger
@@ -12,17 +14,17 @@ from api.models import db
 from api.routes import api
 from api.admin import setup_admin
 from api.commands import setup_commands
-from datetime import timedelta
+
+sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 ENV = "development" if os.getenv("FLASK_DEBUG") == "1" else "production"
 static_file_dir = os.path.join(os.path.dirname(
     os.path.realpath(__file__)), '../dist/')
 
-# Crear la aplicación Flask
 app = Flask(__name__)
+app.config['APPLICATION_NAME'] = 'API CROCHET'
 app.url_map.strict_slashes = False
 
-# CORS Configuration - Configurado para frontend en puerto 3000
 CORS(app, resources={
     r"/api/*": {
         "origins": [
@@ -36,13 +38,10 @@ CORS(app, resources={
     }
 })
 
-# JWT Configuration
 app.config['JWT_SECRET_KEY'] = os.getenv(
     'JWT_SECRET_KEY', 'your-secret-key-change-this-in-production')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(days=7)
 jwt = JWTManager(app)
-
-# JWT Error handlers
 
 
 @jwt.expired_token_loader
@@ -63,7 +62,6 @@ def unauthorized_callback(error):
     return jsonify({"error": "Authentication required"}), 401
 
 
-# Database configuration
 db_url = os.getenv("DATABASE_URL")
 if db_url is not None:
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url.replace(
@@ -75,32 +73,27 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 MIGRATE = Migrate(app, db, compare_type=True)
 db.init_app(app)
 
-# Setup admin
 setup_admin(app)
-
-# Setup commands
 setup_commands(app)
-
-# Add all endpoints from the API with a "api" prefix
 app.register_blueprint(api, url_prefix='/api')
-
-# Handle/serialize errors like a JSON object
 
 
 @app.errorhandler(APIException)
 def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
-# Generate sitemap with all your endpoints
-
 
 @app.route('/')
 def sitemap():
     if ENV == "development":
         return generate_sitemap(app)
+    index_path = os.path.join(static_file_dir, 'index.html')
+    if os.path.isfile(index_path):
+        with open(index_path, 'r', encoding='utf-8') as f:
+            html = f.read()
+        html = html.replace('<title>', '<title>API CROCHET - ')
+        return html
     return send_from_directory(static_file_dir, 'index.html')
-
-# Any other endpoint will try to serve it like a static file
 
 
 @app.route('/<path:path>', methods=['GET'])
@@ -108,11 +101,10 @@ def serve_any_other_file(path):
     if not os.path.isfile(os.path.join(static_file_dir, path)):
         path = 'index.html'
     response = send_from_directory(static_file_dir, path)
-    response.cache_control.max_age = 0  # avoid cache memory
+    response.cache_control.max_age = 0
     return response
 
 
-# This only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3001))
     print(f"🚀 Starting Flask server on port {PORT}...")
