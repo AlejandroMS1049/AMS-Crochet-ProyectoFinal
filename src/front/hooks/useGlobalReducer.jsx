@@ -1,12 +1,9 @@
 // Import necessary hooks and functions from React.
 import { useContext, useReducer, createContext } from "react";
-import storeReducer, { initialStore } from "../store"  // Import the reducer and the initial state.
+import storeReducer, { initialStore } from "../store";
 import axios from 'axios';
 
-let BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "";
-if (BACKEND_URL.startsWith('"') && BACKEND_URL.endsWith('"')) {
-    BACKEND_URL = BACKEND_URL.slice(1, -1);
-}
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL?.replace(/"/g, "") || "";
 console.log('BACKEND_URL configurado como:', BACKEND_URL);
 
 // Configuración de axios
@@ -14,7 +11,8 @@ const apiClient = axios.create({
     baseURL: BACKEND_URL,
     timeout: 10000,
     headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
     }
 });
 
@@ -34,7 +32,7 @@ export function StoreProvider({ children }) {
         login: async (email, password) => {
             try {
                 console.log('Intentando login con axios:', { email, password, backend: BACKEND_URL });
-                const url = BACKEND_URL + '/api/login';
+                const url = `${import.meta.env.VITE_BACKEND_URL}/api/login`;
                 console.log('URL de login:', url);
                 const response = await apiClient.post('/api/login', {
                     email,

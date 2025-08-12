@@ -1,4 +1,4 @@
-#!/bin/bash
+te he ducho qe mi arcfdsj q #!/bin/bash
 # Script para actualizar VITE_BACKEND_URL en .env automáticamente en Codespaces
 
 # Detecta la URL pública del backend en Codespaces

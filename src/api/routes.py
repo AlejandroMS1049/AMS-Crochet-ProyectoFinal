@@ -76,14 +76,54 @@ def register():
         return jsonify({"error": "Registration failed"}), 500
 
 
+# CRUD para Product
 @api.route('/products', methods=['GET'])
 def get_products():
-    try:
-        products = Product.query.all()
-        return jsonify([product.serialize() for product in products]), 200
-    except Exception as e:
-        print(f"Get products error: {e}")
-        return jsonify({"error": "Failed to fetch products"}), 500
+    products = Product.query.all()
+    return jsonify([product.serialize() for product in products]), 200
+
+
+@api.route('/products', methods=['POST'])
+def create_product():
+    data = request.get_json()
+    product = Product(
+        name=data.get('name'),
+        description=data.get('description'),
+        price=data.get('price'),
+        stock=data.get('stock'),
+        category_id=data.get('category_id'),
+        image_url=data.get('image_url'),
+        is_active=True
+    )
+    db.session.add(product)
+    db.session.commit()
+    return jsonify(product.serialize()), 201
+
+
+@api.route('/products/<int:id>', methods=['PUT'])
+def update_product(id):
+    product = Product.query.get(id)
+    if not product:
+        return jsonify({'error': 'Producto no encontrado'}), 404
+    data = request.get_json()
+    product.name = data.get('name', product.name)
+    product.description = data.get('description', product.description)
+    product.price = data.get('price', product.price)
+    product.stock = data.get('stock', product.stock)
+    product.category_id = data.get('category_id', product.category_id)
+    product.image_url = data.get('image_url', product.image_url)
+    db.session.commit()
+    return jsonify(product.serialize()), 200
+
+
+@api.route('/products/<int:id>', methods=['DELETE'])
+def delete_product(id):
+    product = Product.query.get(id)
+    if not product:
+        return jsonify({'error': 'Producto no encontrado'}), 404
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify({'result': 'Producto eliminado'}), 200
 
 # Test endpoint
 

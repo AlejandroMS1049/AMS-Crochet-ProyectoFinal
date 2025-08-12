@@ -43,6 +43,8 @@ export const Login = () => {
         setLoading(false);
     };
 
+    const url = `${import.meta.env.VITE_BACKEND_URL}/api/login`;
+
     return (
         <Container className="py-5">
             <Row className="justify-content-center">

@@ -62,7 +62,7 @@ def create_categories():
         return
 
     categories = [
-        {'name': 'Amigurumis', 'description': 'Muñecos y figuras tejidas a crochet'},
+        {'name': 'Amiguis', 'description': 'Muñecos y figuras tejidas a crochet'},
         {'name': 'Ropa', 'description': 'Prendas de vestir hechas a crochet'},
         {'name': 'Accesorios', 'description': 'Bolsos, carteras y accesorios'},
         {'name': 'Decoración', 'description': 'Elementos decorativos para el hogar'}
@@ -109,6 +109,62 @@ def create_products():
             'stock': 8,
             'category_id': 3,
             'image_url': 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?ixlib=rb-4.0.3&w=500'
+        },
+        {
+            'name': 'Almohadón Decorativo',
+            'description': 'Almohadón tejido ideal para decorar tu hogar.',
+            'price': 20.00,
+            'stock': 12,
+            'category_id': 4,
+            'image_url': 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?ixlib=rb-4.0.3&w=500'
+        },
+        {
+            'name': 'Gorro Infantil',
+            'description': 'Gorro divertido y colorido para niños.',
+            'price': 15.00,
+            'stock': 20,
+            'category_id': 2,
+            'image_url': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&w=500'
+        },
+        {
+            'name': 'Llavero Amigurumi',
+            'description': 'Pequeño llavero tejido en forma de animalito.',
+            'price': 7.50,
+            'stock': 30,
+            'category_id': 1,
+            'image_url': 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?ixlib=rb-4.0.3&w=500'
+        },
+        {
+            'name': 'Cartera Boho',
+            'description': 'Cartera estilo boho chic hecha a crochet.',
+            'price': 28.00,
+            'stock': 9,
+            'category_id': 3,
+            'image_url': 'https://images.unsplash.com/photo-1519985176271-adb1088fa94c?ixlib=rb-4.0.3&w=500'
+        },
+        {
+            'name': 'Tapete Redondo',
+            'description': 'Tapete decorativo para sala o dormitorio.',
+            'price': 22.00,
+            'stock': 6,
+            'category_id': 4,
+            'image_url': 'https://images.unsplash.com/photo-1465101178521-c1a4c8a0f8f5?ixlib=rb-4.0.3&w=500'
+        },
+        {
+            'name': 'Conejito Amigurumi',
+            'description': 'Conejito tejido ideal para regalar.',
+            'price': 19.99,
+            'stock': 14,
+            'category_id': 1,
+            'image_url': 'https://images.unsplash.com/photo-1502086223501-7ea6ecd79368?ixlib=rb-4.0.3&w=500'
+        },
+        {
+            'name': 'Chaleco de Verano',
+            'description': 'Chaleco ligero y fresco para días soleados.',
+            'price': 24.50,
+            'stock': 11,
+            'category_id': 2,
+            'image_url': 'https://images.unsplash.com/photo-1519125323398-675f0ddb6308?ixlib=rb-4.0.3&w=500'
         }
     ]
 
