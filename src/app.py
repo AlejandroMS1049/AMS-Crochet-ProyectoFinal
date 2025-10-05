@@ -4,7 +4,7 @@ This module takes care of starting the API Server, Loading the DB and Adding the
 import os
 import sys
 from datetime import timedelta
-from flask import Flask, request, jsonify, url_for, send_from_directory, Blueprint
+from flask import Flask, request, jsonify, url_for, send_from_directory, Blueprint, jsonify
 from flask_migrate import Migrate
 from flask_swagger import swagger
 from flask_jwt_extended import JWTManager
@@ -35,6 +35,8 @@ CORS(app, resources={
         "origins": [
             "http://localhost:3000",
             "http://127.0.0.1:3000",
+            "http://localhost:5173",
+            "http://127.0.0.1:5173",
             "https://*.gitpod.io",
             "https://*.codespaces.githubusercontent.com",
             "https://special-parakeet-jjv5xj9v6p5f5jw9-3001.app.github.dev"

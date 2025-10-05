@@ -45,6 +45,89 @@ def setup_commands(app):
             {'name': 'Decoración', 'description': 'Elementos decorativos para el hogar'}
         ]
 
+        products_data = [
+            {
+                'name': 'Alfombra Circular',
+                'description': 'Alfombra tejida a mano, perfecta para decorar cualquier espacio.',
+                'price': 40.00,
+                'stock': 5,
+                'category_id': 4,
+                'image_url': 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Portavasos Crochet',
+                'description': 'Set de 4 portavasos tejidos, ideales para proteger tus muebles.',
+                'price': 12.00,
+                'stock': 25,
+                'category_id': 3,
+                'image_url': 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5a?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Muñeca Amigurumi',
+                'description': 'Muñeca tejida con detalles personalizados, perfecta para regalar.',
+                'price': 35.50,
+                'stock': 7,
+                'category_id': 1,
+                'image_url': 'https://images.unsplash.com/photo-1529927066849-79b791a69825?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Cesta Organizadora',
+                'description': 'Cesta tejida para organizar objetos pequeños en tu hogar.',
+                'price': 20.00,
+                'stock': 10,
+                'category_id': 2,
+                'image_url': 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5a?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Osito de Peluche',
+                'description': 'Adorable osito tejido a mano con hilo suave. Perfecto para bebés y niños.',
+                'price': 25.99,
+                'stock': 10,
+                'category_id': 1,
+                'image_url': 'https://images.unsplash.com/photo-1529927066849-79b791a69825?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Bufanda Multicolor',
+                'description': 'Bufanda tejida con colores vibrantes, ideal para días fríos.',
+                'price': 18.50,
+                'stock': 15,
+                'category_id': 2,
+                'image_url': 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5a?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Bolso de Playa',
+                'description': 'Bolso espacioso y resistente, perfecto para llevar a la playa.',
+                'price': 32.00,
+                'stock': 8,
+                'category_id': 3,
+                'image_url': 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5a?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Cojín Decorativo',
+                'description': 'Hermoso cojín con patrones geométricos para decorar tu sofá.',
+                'price': 22.75,
+                'stock': 12,
+                'category_id': 4,
+                'image_url': 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Unicornio Mágico',
+                'description': 'Unicornio colorido con cuerno dorado y cola de arcoíris.',
+                'price': 28.99,
+                'stock': 6,
+                'category_id': 1,
+                'image_url': 'https://images.unsplash.com/photo-1529927066849-79b791a69825?ixlib=rb-4.0.3&w=500'
+            },
+            {
+                'name': 'Gorro de Invierno',
+                'description': 'Gorro cálido con pompón, disponible en varios colores.',
+                'price': 15.00,
+                'stock': 20,
+                'category_id': 2,
+                'image_url': 'https://images.unsplash.com/photo-1544966503-7cc5ac882d5a?ixlib=rb-4.0.3&w=500'
+            }
+        ]
+
         categories = []
         for cat_data in categories_data:
             category = Category(
